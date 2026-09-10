@@ -1,0 +1,8 @@
+[
+  { "key": "drop", "title": "Drop Merch" },
+  { "key": "tour", "title": "Tour Merch" },
+  { "key": "collabs", "title": "Merch Collaborations" },
+  { "key": "samples", "title": "Sample Merch Pieces" },
+  { "key": "employee", "title": "Employee Merch" },
+  { "key": "books", "title": "Music Books" }
+]
