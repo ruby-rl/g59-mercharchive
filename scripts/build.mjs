@@ -1,6 +1,8 @@
-// Builds the static site into _site/ by scanning the collections/ folders.
-// Run automatically by .github/workflows/deploy.yml on every push - you
-// never need to run this yourself, just add photos and push.
+// Builds the static site into _site/ by scanning each category folder
+// (drop/, tour/, collabs/, samples/, employee/, books/) sitting at the
+// root of the repo. Run automatically by .github/workflows/deploy.yml on
+// every push - you never need to run this yourself, just add photos and
+// push.
 //
 // Usage (only if you want to preview locally): node scripts/build.mjs
 
@@ -61,8 +63,9 @@ function findPreviewImage(folderPath) {
   return null;
 }
 
+// Category folders live directly at the repo root: <categoryKey>/<collectionFolder>/
 function buildCollectionSection(categoryKey, folderName) {
-  const folderPath = path.join(ROOT, "collections", categoryKey, folderName);
+  const folderPath = path.join(ROOT, categoryKey, folderName);
   const info = readInfo(folderPath);
   const title = info.title || folderName;
 
@@ -102,7 +105,7 @@ function buildCollectionSection(categoryKey, folderName) {
 }
 
 function buildCategoryPage(category) {
-  const categoryDir = path.join(ROOT, "collections", category.key);
+  const categoryDir = path.join(ROOT, category.key);
   let sectionsHtml = `<p class="empty-state">No collections added to this category yet. See README.md for how to add one.</p>`;
 
   if (fs.existsSync(categoryDir)) {
@@ -161,10 +164,6 @@ function main() {
 
   copyDir(path.join(ROOT, "assets"), path.join(OUT, "assets"));
 
-  if (fs.existsSync(path.join(ROOT, "collections"))) {
-    copyDir(path.join(ROOT, "collections"), path.join(OUT, "collections"));
-  }
-
   fs.copyFileSync(path.join(ROOT, "index.html"), path.join(OUT, "index.html"));
 
   if (fs.existsSync(path.join(ROOT, "CNAME"))) {
@@ -176,6 +175,12 @@ function main() {
   );
 
   for (const category of categories) {
+    // Copy this category's whole folder (with all its photos) into _site/
+    const categorySrc = path.join(ROOT, category.key);
+    if (fs.existsSync(categorySrc)) {
+      copyDir(categorySrc, path.join(OUT, category.key));
+    }
+
     const html = buildCategoryPage(category);
     fs.writeFileSync(path.join(OUT, `${category.key}.html`), html);
     console.log(`Built ${category.key}.html`);
